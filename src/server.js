@@ -1,5 +1,5 @@
 import http from "http"
-import WebSocket from "ws"
+import SocketIO from "socket.io"
 import express from "express"
 import { Socket } from "net"
 
@@ -18,20 +18,39 @@ app.get("/*", (req, res)=>{
   return res.redirect("/")
 })
 
-const server = http.createServer(app)
+const httpServer = http.createServer(app)
+const wsServer = SocketIO(httpServer)
 
-const wss = new WebSocket.Server({server}) 
+wsServer.on("connection", socket=>{
 
-wss.on("connection", (socket)=>{
-  socket.on("open", ()=>{
-  })
-  setTimeout(()=>socket.send("Hi there!!!"), 3000)
-  socket.on("close", ()=>{
-    console.log("Disconnected from the browser💀")
-  })
-  socket.addEventListener("message", (message)=> console.log(message.data))
 })
 
 
-server.listen(PORT, () =>console.log(`✅Server listening from http://localhost:${PORT}`))
+
+/* const wss = new WebSocket.Server({server})
+
+ let socketArr = []
+wss.on("connection", (socket)=>{
+  console.log("Connected to the browser ✓")
+  socketArr.push(socket)
+  socket["nickname"] = "Anonymous"
+  socket.on("open", ()=>{
+  })
+  socket.on("close", ()=>{
+    console.log("Disconnected from the browser💀")
+  })
+  socket.addEventListener("message", (message)=> {
+    const parse = JSON.parse(message.data)
+    console.log(parse)
+    switch (parse.type){
+      case "sms":
+        socketArr.forEach((eachSocket)=> eachSocket.send(`${socket.nickname}: ${parse.value}`))
+      case "nickname":
+        socket["nickname"] = parse.value
+    }
+  })
+}) */
+
+
+httpServer.listen(PORT, () =>console.log(`✅Server listening from http://localhost:${PORT}`))
  
