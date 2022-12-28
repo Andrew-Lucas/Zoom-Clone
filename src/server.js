@@ -1,9 +1,9 @@
 import http from "http"
-import SocketIO from "socket.io"
+import {Server} from "socket.io"
+import {instrument} from "@socket.io/admin-ui"
 import express from "express"
 import { Socket } from "net"
 
-console.log("Hi")
 const app = express()
 const PORT = 4000
 
@@ -19,7 +19,16 @@ app.get("/*", (req, res)=>{
 })
 
 const httpServer = http.createServer(app)
-const wsServer = SocketIO(httpServer)
+const wsServer = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io"],
+    credentials: true
+  }
+})
+
+instrument(wsServer, {
+  auth: false,
+})
 
 wsServer.on("connection", socket=>{
   socket["nickname"] = "Anonymous"
@@ -29,7 +38,6 @@ wsServer.on("connection", socket=>{
   })
 
   socket.on("save_nickname", (nickname)=>{
-    console.log(nickname)
     socket["nickname"] = nickname
     socket.emit("saved_nickname", nickname)
   })
@@ -43,20 +51,26 @@ wsServer.on("connection", socket=>{
         publicRooms.push(key)
       }
     })
-/*     console.log(publicRooms) */
+    console.log(publicRooms)
     return publicRooms
+  }
+
+  function countRoom(roomName){
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size
   }
 
   socket.on("enter_channel", (roomName, done)=>{
     socket.join(roomName)
     done() 
-    socket.to(roomName).emit("welcome", {nickname: socket.nickname})
+    socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName))
     wsServer.sockets.emit("room_change", publicRooms())
   })
 
   socket.on("disconnecting", ()=>{
-    console.log("Bye", socket.nickname)
-    socket.rooms.forEach((room)=> socket.to(room).emit("bye", {nickname: socket.nickname}))
+    socket.rooms.forEach((room)=> socket.to(room).emit("bye", socket.nickname, countRoom(room) - 1))
+  })
+
+  socket.on("disconnect", ()=>{
     wsServer.sockets.emit("room_change", publicRooms()) 
   })
 

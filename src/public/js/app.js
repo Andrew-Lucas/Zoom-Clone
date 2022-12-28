@@ -47,13 +47,17 @@ function addMessage(message){
   li.innerText = message
   ul.appendChild(li)
 }
-socket.on("welcome", (msg)=>{
-  console.log("Hello", msg.nickname)
-  addMessage(`${msg.nickname} joined this channel`)
+socket.on("welcome", (nickname, newCount)=>{
+  const chatName = document.querySelector(".chat-name")
+  chatName.innerText = `Room ${roomName} (${newCount})`
+  console.log("Hello", nickname)
+  addMessage(`${nickname} joined this channel`)
 })
-socket.on("bye", (msg)=>{
-  console.log("Bye", msg.nickname)
-  addMessage(`${msg.nickname} disconnected`)
+socket.on("bye", (nickname, newCount)=>{
+  const chatName = document.querySelector(".chat-name")
+  chatName.innerText = `Room ${roomName} (${newCount})`
+  console.log("Bye", nickname)
+  addMessage(`${nickname} disconnected`)
 })
 
 enterChannelForm.addEventListener("submit", handleEnterChannel)
@@ -71,6 +75,26 @@ function sendMessage(submitEvent){
 
 socket.on("new_message", addMessage)
 
-socket.on("room_change", console.log)
+socket.on("room_change", (rooms)=>{
+  console.log(rooms)
+  const roomsUl = enterChannelForm.querySelector("ul")
+  roomsUl.innerHTML = ""
+  if(rooms.length == 0){
+    return;
+  }
+  rooms.forEach((room)=>{
+/*     const exists = rooms.find((eachRoom)=> eachRoom===room)
+    if(exists){
+      console.log(exists, "already exists")
+      return
+    }
+    console.log(exists) */
+    const roomLi = document.createElement("li")
+    roomLi.innerText = room
+    roomsUl.appendChild(roomLi)
+/*     console.log(roomsUl)
+    console.log(roomLi) */
+  })
+})
 
 enterMessageForm.addEventListener("submit", sendMessage)
