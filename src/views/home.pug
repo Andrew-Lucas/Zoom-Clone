@@ -10,27 +10,9 @@ html(lang="en")
     header 
       h1 Noom 
     main 
-      h3#user-nickname
-      #initialize-channel 
-        form.nick-name_form
-          input(type="text" placeholder="What is your nickname") 
-          button Save Nickname
-
-
-        form.enter-channel_form
-          input.channel-name(type="text" required placeholder="Create or Join a channel")
-          input(type="submit" value="Enter Room")
-          h4 Open Rooms:
-          ul
-
-
-      #welcome-channel 
-        h2.chat-name
-        ul
-        form.enter-message_form
-          input.message-text(type="text" required placeholder="Write a message")
-          input(type="submit" value="Send")
-          
-
+      video#myVideo(autoplay,playsinline, width="400", height="370") 
+      select#cameras 
+      button#muteBtn Mute
+      button#disableCameraBtn Disable Camera
     script(src="/socket.io/socket.io.js")
     script(src="/public/js/app.js")
