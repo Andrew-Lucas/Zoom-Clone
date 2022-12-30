@@ -9,10 +9,20 @@ html(lang="en")
   body
     header 
       h1 Noom 
-    main 
+    main#start
+      form
+        input(type="text" placeholder="Enter room name")
+        button Enter 
+    main#call
       video#myVideo(autoplay,playsinline, width="400", height="370") 
       select#cameras 
       button#muteBtn Mute
       button#disableCameraBtn Disable Camera
+
+      ul#message-ul
+      form#message-form
+        input(type="text" placeholder="Write a message")
+        button Send
+
     script(src="/socket.io/socket.io.js")
     script(src="/public/js/app.js")
